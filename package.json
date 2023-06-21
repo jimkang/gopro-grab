@@ -1,0 +1,17 @@
+{
+  "name": "gopro-grab",
+  "version": "1.0.0",
+  "description": "Script for grabbing from GoPro while on its network.",
+  "main": "get-from-gp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jim Kang",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  },
+  "engine": 18
+}
