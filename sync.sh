@@ -1,7 +1,7 @@
 #!/bin/bash
 
 s3cmd=/usr/local/bin/s3cmd
-localparentdir=1
+localparentdir=$1
 bucket=$2
 bucketdir=$3
 
