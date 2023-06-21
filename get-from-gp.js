@@ -4,6 +4,7 @@ var cheerio = require('cheerio');
 var fs = require('fs');
 var { Readable } = require('stream');
 var { finished } = require('stream/promises');
+var { queue } = require('d3-queue');
 
 const goProBaseURL = 'http://10.5.5.9:8080/videos/DCIM/';
 const localMediaDir = 'local-media';
@@ -63,19 +64,33 @@ function getPrefixNumberFromText(text) {
 }
 
 function downloadPhotosAtLinks(baseURL, links) {
-  var dlPromises = [];
+  var q = queue(4);
   for (let i = 0; i < links.length; ++i) {
-    dlPromises.push(downloadIfNecessary(baseURL, links[i]));
+    q.defer(downloadIfNecessary, baseURL, links[i]);
   }
-  return Promise.allSettled(dlPromises);
+
+  return new Promise(executor);
+
+  function executor(resolve, reject) {
+    q.awaitAll(allDone);
+
+    function allDone(error, results) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    }
+  }
 }
 
 // throws
-async function downloadIfNecessary(baseURL, link) {
+async function downloadIfNecessary(baseURL, link, done) {
   const filename = link.attribs.href;
   const filePath = `${localMediaDir}/${filename}`;
   if (fs.existsSync(filePath)) {
-    return { file: filePath, state: 'skipped' };
+    process.nextTick(done, null, { file: filePath, state: 'skipped' });
+    return;
   }
 
   console.log('Downloading', filename);
@@ -87,9 +102,9 @@ async function downloadIfNecessary(baseURL, link) {
       Readable.fromWeb(res.body)
       .pipe(fileStream)
     );
-    return { file: filePath, state: 'downloaded' };
+    done(null, { file: filePath, state: 'downloaded' });
   } catch (error) {
-    return { file: filePath, state: 'error', errorMsg: error.message };
+    done(null, { file: filePath, state: 'error', errorMsg: error.message });
   }
 }
 
