@@ -1,6 +1,6 @@
 #!/bin/bash
 
 filename=local-media/$(date +'%Y-%m-%d-%H:%M:%S').jpg
-fswebcam -r 640x480 --jpeg 90 -d /dev/video0 -S 45 "${filename}"
+fswebcam -r 640x480 --jpeg 90 -d /dev/video4 -S 45 "${filename}"
 
 /home/jimkang/.nvm/versions/node/v18.16.1/bin/node make-indexes.js local-media
